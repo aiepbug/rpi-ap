@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>&larr;Interfaces</title>
+</head>
+<body>
+<h4>Interfaces</h4>
+<ul class="collection">
+    {% for k,v in data.iteritems() %}
+    <li class="collection-item">{{ k }} ({{ v }})
+        <span class="badge">
+            <div class="switch">
+                <label>
+                    <input
+                            {% if adapter[k][1]=='loopback' %} disabled {% endif %}
+                            {% if adapter[k][1]=='wireless' %} checked {% endif %}
+                    type="checkbox">
+                    <span class="lever"></span>
+                    Wireless
+                </label>
+            </div>
+        </span>
+    </li>
+    {% endfor %}
+</ul>
+<button class="btn red" onclick="simpan_interfaces()">Simpan</button>
+</body>
+</html>
+<script>
+    function simpan_interfaces()
+    {
+    alert('{{ data }}')
+        $.ajax({
+		url      : "simpan_interfaces",
+		data     : ({}),
+		type     : 'post',
+		dataType : 'html',
+		success  : function(respon){
+				$('html, body').animate({ scrollTop: 0 }, 'slow');
+				$('#menu').html(respon);
+				},
+	    })
+    }
+</script>

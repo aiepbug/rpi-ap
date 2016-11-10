@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>&larr;Interfaces</title>
+</head>
+<body>
+<h4>IP Address</h4>
+<ul class="collection">
+    {% set count = 0 %}
+    {% for k,v in data.iteritems() %}
+    <li class="collection-item-aa">
+        <div class="row">
+            <div class="input-field col s1">
+                {{ k }}  <input type="hidden" id="interface{{ count }}" value="{{ k }}">
+            </div>
+            <div class="input-field col s2">
+                <input type="text" class="" value="{{ v[0] }}" id="address{{ count }}" placeholder="IP address" {% if adapter[k][1]=='loopback' %} disabled  {% endif %}>
+            </div>
+            <div class="input-field col s1">
+                <span class="right">Netmask</span>
+            </div>
+            <div class="input-field col s2">
+                <input type="text" class="" value="{{ v[1] }}" id="netmask{{ count }}" placeholder="Netmask" {% if adapter[k][1]=='loopback' %} disabled  {% endif %}>
+            </div>
+            <div class="input-field col s4">
+
+                    <input type='checkbox' id="dhcp{{ k }}"   {% if adapter[k][1]=='loopback' %} disabled  {% endif %}>
+                    <label for="dhcp{{ k }}">DHCP Client</label>
+                    <input class="with-gap" name="wan" type="radio" id="wan{{ k }}" value="{{ k }}"
+                           {% if adapter[k][1]=='loopback' %} disabled  {% endif %}
+                           {% if k==gws[2][0][1] %} checked  {% endif %}
+                    />
+                    <label for="wan{{ k }}">WAN</label>
+
+            </div>
+        </div>
+        {% set count = count + 1 %}
+    </li>
+    {% endfor %}
+</ul>
+<div class="row">
+    <div class="input-field col s2">
+        Gateway
+    </div>
+    <div class="input-field col s10">
+        <input type="text" placeholder="Gateway" id="gw" value="{{ gws[2][0][0] }}">
+    </div>
+</div>
+<div class="row">
+     <div class="input-field col s2">
+        DNS 1
+    </div>
+    <div class="input-field col s4">
+        <input type="text" placeholder="DNS 1" id="dns1" value="{{ dns[0] }}">
+    </div><div class="input-field col s2">
+        DNS 2
+    </div>
+    <div class="input-field col s4">
+        <input type="text" placeholder="DNS 2" id="dns2" value="{{ dns[1] }}">
+    </div>
+</div>
+<div class="row">
+     <div class="input-field col s2">
+    </div>
+    <div class="input-field col s10">
+      <input type="checkbox" onchange="nat()" id="nat" />
+      <label for="nat">Mode Router (enable NAT)</label>
+    </div>
+</div>
+<button class="btn red" onclick="simpan_all()">Simpan</button>
+</body>
+</html>
+<script>
+if({{ nat }}=='1')
+{
+    $('#nat').prop('checked',true)
+}
+    function simpan_all()
+    {
+        var data=[];
+        $("li.collection-item-aa").each(function(index,value)
+        {
+            item = {}
+            item['interface'] = $("#interface"+index).val()
+            item['address'] = $("#address"+index).val()
+            item['netmask'] = $("#netmask"+index).val()
+            data.push(item)
+        });
+        var arr = Object.keys(data).map(function (key) { return data[key]; });
+        console.log(arr)
+    }
+
+    function simpan_data(data)
+    {
+        $.ajax({
+            url          : 'simpan_data',
+            data         : $.toJSON(data),
+            type         : 'post',
+            dataType     : 'json',
+            success  : function(respon){
+                       Materialize.toast(respon, 2000)
+                    },
+	    })
+    }
+
+    function simpan_interfaces(interface)
+    {
+        var ip = $("#ip"+interface).val()
+        var netmask = $("#netmask"+interface).val()
+        $.ajax({
+            url      : "simpan_interfaces",
+            data     : ({ interface:interface,ip:ip,netmask:netmask }),
+            type     : 'post',
+            dataType : 'html',
+            success  : function(respon){
+                       Materialize.toast('Tersimpan', 2000)
+                    },
+	    })
+    }
+    function simpan_route()
+    {
+        var gw = $("#gw").val()
+        var dns1 = $("#dns1").val()
+        var dns2 = $("#ndns2").val()
+        $.ajax({
+		url      : "simpan_route",
+		data     : ({ gw:gw,dns1:dns1,dns2:dns2 }),
+		type     : 'post',
+		dataType : 'html',
+		success  : function(respon){
+                   Materialize.toast('Tersimpan', 2000)
+   				},
+	    })
+    }
+    function nat()
+    {
+        var interface=$("input[name=wan]:checked").val()
+        if($('#nat').prop('checked')) {
+            var nat=1
+        } else {
+            var nat=0
+        }
+        $.ajax({
+		url      : "nat",
+		data     : ({ nat:nat,interface:interface }),
+		type     : 'post',
+		dataType : 'html',
+		success  : function(respon){
+                    if(respon==nat)
+                    {
+                        Materialize.toast('Tersimpan', 2000)
+                    }
+                    else
+                    {
+                        Materialize.toast('Gagal tersimpan!', 2000)
+                    }
+				},
+	    })
+    }
+</script>

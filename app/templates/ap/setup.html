@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Setup</title>
+</head>
+<body>
+
+<ul class="collection with-header">
+    <li class="collection-header"><h4>Setup {{ cmd }}</h4></li>
+    <li id="interfaces" class="menu collection-item"><a href="#" onclick="konfig('interfaces')">Interfaces</a></li>
+    <li id="ipaddress" class="menu collection-item"><a href="#" onclick="konfig('ipaddress')">IP Address</a></li>
+    <li id="wireless" class="collection-item"><a href="#">Wireless</a></li>
+    <li id="dhcp" class="collection-item"><a href="#">DHCP server</a></li>
+    <li id="baca"  class="collection-item"><a href="#" onclick="konfig('baca')">Read Iface</a></li>
+</ul>
+</body>
+</html>
+<script>
+    function konfig(param)
+{
+	$.ajax({
+		url      : "konfig",
+		data     : ({ param:param }),
+		type     : 'post',
+		dataType : 'html',
+		success  : function(respon){
+                $('.menu').removeClass('red lighten-3')
+                $('#'+param).addClass('red lighten-3')
+				$('html, body').animate({ scrollTop: 0 }, 'slow');
+				$('#konten').html(respon);
+				},
+	})
+}
+</script>
